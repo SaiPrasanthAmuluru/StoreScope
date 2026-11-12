@@ -153,7 +153,21 @@ StoreScope.stop()                               // remove triggers and the butto
 ## What you get
 
 Containers → entities with live row counts → paged records (50 at a time) → full field list.
-Search runs in SQLite across all string attributes (case/diacritic-insensitive). Tap a field to copy it, **Copy all** copies the record. NULL is shown distinctly from an empty string. Relationships show as `Entity pNN` / `N objects`.
+Search runs in SQLite across all string attributes (case/diacritic-insensitive). Tap a field to copy it, **Copy all** copies the record. Copied values are plain text, ready to paste into a chat, a bug ticket or a terminal. A system share sheet for handing a record off to another app (Export, E1) is planned but not built yet. NULL is shown distinctly from an empty string. Relationships show as `Entity pNN` / `N objects`.
+
+## Data ownership
+
+StoreScope stores nothing of its own. It never creates a persistent store, never copies your data anywhere, and never writes to disk unless you explicitly use an opt-in write feature. It only opens a **read-only** background context on the `NSPersistentContainer` your app already built and reads what your app has already saved.
+
+Two write features are planned, both opt-in and confirmed before anything is saved, and both are not built yet:
+
+- **Edit a value** — change a single attribute directly from the inspector, validated against the model. This is meant for pushing your app into a specific test state (an edge-case value, an empty string, a boundary date) without writing throwaway code that inserts records or calls `context.save()` yourself. It still goes through the same model validation a normal save would.
+- **Saved states** — snapshot the whole store under a name and restore it later, so a test scenario can be reached in one step instead of rebuilt by hand each time.
+
+That means:
+
+- Removing the package does not touch your app's Core Data store. The `.sqlite` file, and everything in it, belongs to your app, not to us — it was there before StoreScope and stays exactly as it is after.
+- Nothing is sent off-device. Data leaves the device only if you deliberately use an export feature, and exports are not implemented yet.
 
 ## Notes and limits
 
